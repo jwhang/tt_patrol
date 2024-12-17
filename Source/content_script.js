@@ -1,4 +1,5 @@
-const MIN_TEXT_LENGTH = 4;
+const NAUGHTYLIST = ["trip", "travel", "flight", "plane", "jetlag", "timezone"];
+const MIN_NUM_WORDS = 4; // Text must be at least MIN_NUM_WORDS to be analyzed for naughtiness.
 
 // Set up MutationObserver to monitor added nodes.
 const config = {
@@ -28,17 +29,16 @@ function patrol(node) {
 }
 
 // Patrol helper functions
-const naughtylist = ["trip", "travel", "flight", "plane", "jetlag", "timezone"];
 
 // Returns true if given string contains a word in the naughtylist.
 function is_naughty(str) {
   const normalized = str.trim().toLowerCase();
-  return naughtylist.some((naughty_word) => normalized.match(naughty_word));
+  return NAUGHTYLIST.some((naughty_word) => normalized.match(naughty_word));
 }
 
 function is_violation(node) {
   function long_enough(str) {
-    return str.trim().split(" ").length > MIN_TEXT_LENGTH;
+    return str.trim().split(" ").length > MIN_NUM_WORDS;
   }
   return (
     node.parentElement.tagName.toLowerCase() != "script" &&

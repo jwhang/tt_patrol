@@ -18,7 +18,7 @@ const callback = (mutationList, observer) => {
 const observer = new MutationObserver(callback);
 observer.observe(document.body, config);
 
-// Search for all subnodes of Text type to be redacted.
+// Search for all subnodes of Text type which may need to be redacted.
 function patrol(node) {
   const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null);
   while (walker.nextNode()) {
@@ -30,18 +30,20 @@ function patrol(node) {
 
 // Patrol helper functions
 
-// Returns true if given string contains a word in the naughtylist.
-function is_naughty(str) {
-  const normalized = str.trim().toLowerCase();
-  return NAUGHTYLIST.some((naughty_word) => normalized.match(naughty_word));
-}
-
+// Returns true if given string should be redacted.
 function is_violation(node) {
+  function valid_element(node) {
+    return node.parentElement.tagName.toLowerCase() != "script";
+  }
   function long_enough(str) {
     return str.trim().split(" ").length > MIN_NUM_WORDS;
   }
+  function is_naughty(str) {
+    const normalized = str.trim().toLowerCase();
+    return NAUGHTYLIST.some((naughty_word) => normalized.match(naughty_word));
+  }
   return (
-    node.parentElement.tagName.toLowerCase() != "script" &&
+    valid_element(node) &&
     long_enough(node.nodeValue) &&
     is_naughty(node.nodeValue)
   );

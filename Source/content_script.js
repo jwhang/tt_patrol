@@ -1,4 +1,15 @@
-const NAUGHTYLIST = ["trip", "travel", "flight", "plane", "jetlag", "timezone"];
+const NAUGHTYLIST = [
+  "airline",
+  "business class",
+  "first class",
+  "fly",
+  "flight",
+  "jetlag",
+  "plane",
+  "timezone",
+  "travel",
+  "trip",
+];
 const MIN_NUM_WORDS = 4; // Text must be at least MIN_NUM_WORDS to be analyzed for naughtiness.
 
 // Set up MutationObserver to monitor added nodes.
@@ -52,6 +63,6 @@ function is_violation(node) {
 // Redact violating node.
 function redact(node) {
   console.log(`Redacting: "${node.nodeValue}"`);
-  // TODO(jwhang): Make more visually smart.
-  node.nodeValue = "redacted";
+  node.parentNode.style.color = "black";
+  node.parentNode.style.backgroundColor = "black";
 }

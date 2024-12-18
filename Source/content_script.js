@@ -65,6 +65,9 @@ function is_violation(node) {
 // Redact violating node.
 function redact(node) {
   console.log(`Redacting: "${node.nodeValue}"`);
+  // A trick to prevent the re-evaluation of this text content
+  // by resetting it so it does not trigger long_enough().
+  node.nodeValue = "x".repeat(node.nodeValue.length);
   node.parentNode.style.color = "black";
   node.parentNode.style.backgroundColor = "black";
 }

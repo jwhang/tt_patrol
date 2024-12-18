@@ -12,7 +12,6 @@ const NAUGHTYLIST = [
   "trip[s]?",
   "layover",
 ].map((word) => "\\b" + word + "\\b");
-console.log(NAUGHTYLIST);
 const MIN_NUM_WORDS = 4; // Text must be at least MIN_NUM_WORDS to be analyzed for naughtiness.
 
 // Set up MutationObserver to monitor added nodes.

@@ -1,14 +1,15 @@
 const NAUGHTYLIST = [
-  "airline",
-  "business class",
-  "first class",
-  "fly",
-  "flight",
-  "jetlag",
-  "plane",
-  "timezone",
-  "travel",
-  "trip",
+  "\\bairline(s)\\b",
+  "\\bbusiness class\\b",
+  "\\bfirst class\\b",
+  "\\bfly?\\b",
+  "\\bflight(s)\\b",
+  "\\bjetlag\\b",
+  "\\bplane(s)\\b",
+  "\\btimezone(s)\\b",
+  "\\btravel(s)\\b",
+  "\\btrip(s)\\b",
+  "\\blayover\\b",
 ];
 const MIN_NUM_WORDS = 4; // Text must be at least MIN_NUM_WORDS to be analyzed for naughtiness.
 
@@ -51,6 +52,7 @@ function is_violation(node) {
   }
   function is_naughty(str) {
     const normalized = str.trim().toLowerCase();
+    console.log(normalized);
     return NAUGHTYLIST.some((naughty_word) => normalized.match(naughty_word));
   }
   return (

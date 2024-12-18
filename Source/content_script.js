@@ -1,16 +1,18 @@
 const NAUGHTYLIST = [
-  "\\bairline(s)\\b",
-  "\\bbusiness class\\b",
-  "\\bfirst class\\b",
-  "\\bfly?\\b",
-  "\\bflight(s)\\b",
-  "\\bjetlag\\b",
-  "\\bplane(s)\\b",
-  "\\btimezone(s)\\b",
-  "\\btravel(s)\\b",
-  "\\btrip(s)\\b",
-  "\\blayover\\b",
-];
+  "airline[s]?",
+  "business class",
+  "first class",
+  "fly?",
+  "flight[s]?",
+  "hotel[s]?",
+  "jetlag",
+  "plane[s]?",
+  "timezone[s]?",
+  "travel[s]?",
+  "trip[s]?",
+  "layover",
+].map((word) => "\\b" + word + "\\b");
+console.log(NAUGHTYLIST);
 const MIN_NUM_WORDS = 4; // Text must be at least MIN_NUM_WORDS to be analyzed for naughtiness.
 
 // Set up MutationObserver to monitor added nodes.
@@ -52,7 +54,6 @@ function is_violation(node) {
   }
   function is_naughty(str) {
     const normalized = str.trim().toLowerCase();
-    console.log(normalized);
     return NAUGHTYLIST.some((naughty_word) => normalized.match(naughty_word));
   }
   return (

@@ -82,20 +82,20 @@ function patrolText(node) {
 
 // Returns true if given string should be redacted.
 function isViolation(node) {
-  function valid_element(node) {
+  function isValidElement(node) {
     return node.parentElement.tagName.toLowerCase() != "script";
   }
-  function long_enough(str) {
+  function isLongEnough(str) {
     return str.trim().split(" ").length > MIN_NUM_WORDS;
   }
-  function is_naughty(str) {
+  function isNaughty(str) {
     const normalized = str.trim().toLowerCase();
     return NAUGHTYLIST.some((naughty_word) => normalized.match(naughty_word));
   }
   return (
-    valid_element(node) &&
-    long_enough(node.nodeValue) &&
-    is_naughty(node.nodeValue)
+    isValidElement(node) &&
+    isLongEnough(node.nodeValue) &&
+    isNaughty(node.nodeValue)
   );
 }
 
@@ -103,7 +103,7 @@ function isViolation(node) {
 function redact(node) {
   console.log(`Redacting: "${node.nodeValue}"`);
   // A trick to prevent the re-evaluation of this text content
-  // by resetting it so it does not trigger long_enough().
+  // by resetting it so it does not trigger isLongEnough().
   node.nodeValue = REDACTED_MSG + node.nodeValue;
   node.parentNode.style.color = "black";
   node.parentNode.style.backgroundColor = "black";

@@ -15,6 +15,7 @@ const NAUGHTYLIST = [
 ].map((word) => "\\b" + word + "\\b");
 const MIN_NUM_WORDS = 4; // Text must be at least MIN_NUM_WORDS to be analyzed for naughtiness.
 const REDACTED_MSG = "Redacted: ";
+const CHAT_ID = 1621389464744799;
 
 // Set up MutationObserver to monitor added nodes.
 const config = {
@@ -24,10 +25,13 @@ const config = {
 };
 const callback = (mutationList, observer) => {
   mutationList.forEach((record) => {
-    record.addedNodes.forEach((node) => {
-      // Defer patrol() because TreeWalking and Regex matching are expensive.
-      requestIdleCallback(() => patrol(node));
-    });
+    // Only patrol if
+    if (is_las_chicas(window.location)) {
+      record.addedNodes.forEach((node) => {
+        // Defer patrol() because TreeWalking and Regex matching are expensive.
+        requestIdleCallback(() => patrol(node));
+      });
+    }
   });
 };
 const observer = new MutationObserver(callback);
@@ -79,4 +83,8 @@ function redact(node) {
 
 function is_redacted(node) {
   node.nodeValue.startsWith(REDACTED_MSG);
+}
+
+function is_las_chicas() {
+  return location.pathname == "/t/" + CHAT_ID;
 }

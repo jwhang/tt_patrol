@@ -9,10 +9,12 @@ const NAUGHTYLIST = [
   "plane[s]?",
   "timezone[s]?",
   "travel[s]?",
+  "TZ",
   "trip[s]?",
   "layover",
 ].map((word) => "\\b" + word + "\\b");
 const MIN_NUM_WORDS = 4; // Text must be at least MIN_NUM_WORDS to be analyzed for naughtiness.
+const REDACTED_MSG = "Redacted: ";
 
 // Set up MutationObserver to monitor added nodes.
 const config = {
@@ -35,6 +37,9 @@ observer.observe(document.body, config);
 function patrol(node) {
   const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null);
   while (walker.nextNode()) {
+    if (is_redacted(walker.currentNode)) {
+      continue;
+    }
     if (is_violation(walker.currentNode)) {
       redact(walker.currentNode);
     }
@@ -67,7 +72,11 @@ function redact(node) {
   console.log(`Redacting: "${node.nodeValue}"`);
   // A trick to prevent the re-evaluation of this text content
   // by resetting it so it does not trigger long_enough().
-  node.nodeValue = "x".repeat(node.nodeValue.length);
+  node.nodeValue = REDACTED_MSG + node.nodeValue;
   node.parentNode.style.color = "black";
   node.parentNode.style.backgroundColor = "black";
+}
+
+function is_redacted(node) {
+  node.nodeValue.startsWith(REDACTED_MSG);
 }

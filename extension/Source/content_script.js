@@ -49,8 +49,8 @@ function patrol(node) {
 // Patrol helper functions
 
 function patrolImages(node) {
-  MIN_HEIGHT = 100;
-  MIN_WIDTH = 100;
+  MIN_HEIGHT = 250;
+  MIN_WIDTH = 250;
   var imgs = node.getElementsByTagName("img");
   Array.from(imgs).forEach((img) => {
     if (img.visited === true) {

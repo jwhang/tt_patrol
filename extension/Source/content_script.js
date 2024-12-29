@@ -27,7 +27,7 @@ const config = {
 };
 const callback = (mutationList, observer) => {
   mutationList.forEach((record) => {
-    // Only patrol if
+    // Only patrol if correct chat.
     if (isLasChicas(window.location)) {
       record.addedNodes.forEach((node) => {
         // Defer patrol() because TreeWalking and Regex matching are expensive.
@@ -116,5 +116,5 @@ function isRedacted(node) {
 }
 
 function isLasChicas() {
-  return location.pathname == "/t/" + CHAT_ID;
+  return location.pathname == "/t/" + CHAT_ID + "/";
 }

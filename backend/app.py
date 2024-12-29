@@ -4,7 +4,7 @@ from os import environ
 from flask import Flask, jsonify, make_response, request
 from flask_sqlalchemy import SQLAlchemy
 
-from analyze_image import ImageAnalysisClient
+from openai_client import OpenAIClient
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DB_URL")
@@ -50,7 +50,7 @@ def create_image():
         image_url = data["image_url"]
         app.logger.info("JWDEBUG: " + image_url)
 
-        openai_client = ImageAnalysisClient()
+        openai_client = OpenAIClient()
         image_analysis = openai_client.analyze_image(image_url)
 
         new_image = Image(

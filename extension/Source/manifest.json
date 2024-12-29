@@ -1,5 +1,5 @@
 {
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"name": "TT Patrol",
 	"version": "1.2",
 	"description": "Enforces Travel Tuesday rules",
@@ -10,6 +10,10 @@
 			"js": ["content_script.js"],
 			"run_at": "document_end"
 		}
-	]
-}
+	],
+	"background": {
+		"service_worker": "background.js"
+	},
+	"host_permissions": ["*://localhost:*/*"]
 
+}

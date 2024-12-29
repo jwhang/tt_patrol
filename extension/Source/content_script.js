@@ -2,22 +2,22 @@ const NAUGHTYLIST = [
   "airline[s]?",
   "business class",
   "first class",
-  "fly?",
+  "flew",
   "flight[s]?",
+  "fly?",
   "hotel[s]?",
   "jetlag",
+  "layover",
   "plane[s]?",
   "timezone[s]?",
   "travel[s]?",
   "TZ",
-  "trip[s]?",
-  "layover",
 ].map((word) => "\\b" + word + "\\b");
 const MIN_NUM_WORDS = 4; // Text must be at least MIN_NUM_WORDS to be analyzed for naughtiness.
 const REDACTED_MSG = "Redacted: ";
 const CHAT_ID = 1621389464744799;
-
-images = [];
+const SCOOBY =
+  "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/39cc0698-a3f5-4dd3-9348-a768db8365e8/dgh3iad-c1c63437-27e4-473c-b589-8a81d3257712.gif/v1/fill/w_500,h_375,q_85,strp/scooby_doo_no_by_johnwood2001_dgh3iad-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9Mzc1IiwicGF0aCI6IlwvZlwvMzljYzA2OTgtYTNmNS00ZGQzLTkzNDgtYTc2OGRiODM2NWU4XC9kZ2gzaWFkLWMxYzYzNDM3LTI3ZTQtNDczYy1iNTg5LThhODFkMzI1NzcxMi5naWYiLCJ3aWR0aCI6Ijw9NTAwIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.7DRqkoiovalRCgkJwL-Y9B4bLgsEWhRCkm80k23t_1Q";
 
 // Set up MutationObserver to monitor added nodes.
 const config = {
@@ -49,8 +49,8 @@ function patrol(node) {
 // Patrol helper functions
 
 function patrolImages(node) {
-  MIN_HEIGHT = 250;
-  MIN_WIDTH = 250;
+  MIN_HEIGHT = 100;
+  MIN_WIDTH = 100;
   var imgs = node.getElementsByTagName("img");
   Array.from(imgs).forEach((img) => {
     if (img.visited === true) {
@@ -62,7 +62,8 @@ function patrolImages(node) {
       return;
     }
 
-    console.log(img.src);
+    console.log("Getting image eval");
+    getImageEval(img);
     img.visited = true;
   });
 }
@@ -116,5 +117,20 @@ function isRedacted(node) {
 }
 
 function isLasChicas() {
-  return location.pathname == "/t/" + CHAT_ID + "/";
+  return location.pathname.startsWith(`/t/${CHAT_ID}`);
+}
+
+async function getImageEval(image_element) {
+  console.log("Evaluating image: " + image_element.src);
+  chrome.runtime.sendMessage(
+    {
+      url: image_element.src,
+    },
+    (response) => {
+      if (response.image.is_violation) {
+        console.log("Redacting image: " + image_element.src);
+        image_element.src = SCOOBY;
+      }
+    },
+  );
 }

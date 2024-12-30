@@ -19,14 +19,14 @@ image_url = "https://scontent.xx.fbcdn.net/v/t1.15752-9/462584745_83892332824683
 
 start = time.time()
 completion = client.beta.chat.completions.parse(
-    model="gpt-4o-mini",
+    model="gpt-4o",
     messages=[
         {
             "role": "developer",
             "content": [
                 {
                     "type": "text",
-                    "text": "You analyze images and answer true or false: is the image related to travel? This includes, but is not limited to being in an airplane or at an airport, eating food or drinking somewhere abroad, or photos of general sightseeing views. Limit the explanation to 200 characters",
+                    "text": "You analyze images and answer true or false: is the image related to travel? This includes, but is not limited to being in an airplane or at an airport, eating food or drinking somewhere abroad, or photos of general sightseeing views.",
                 },
             ],
         },
@@ -47,7 +47,7 @@ completion = client.beta.chat.completions.parse(
 
 end = time.time()
 print(f"Completion with explanation: {end-start}")
-print(completion.choices[0].message.parsed.is_travel_image)
+print(completion.choices[0].message.parsed)
 
 
 # start = time.time()

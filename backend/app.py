@@ -1,5 +1,6 @@
 import logging
 from os import environ
+from threading import RLock
 
 from flask import Flask, jsonify, make_response, request
 from flask_sqlalchemy import SQLAlchemy
@@ -44,15 +45,16 @@ def test():
 
 # create a image
 @app.route("/images", methods=["POST"])
-def create_image():
+def create_image(image_url=None):
     try:
-        data = request.get_json()
-        image_url = data["image_url"]
+        if image_url == None:
+            data = request.get_json()
+            image_url = data["image_url"]
 
         image_analysis = openai_client.analyze_image(image_url)
 
         new_image = Image(
-            image_url=data["image_url"], is_violation=image_analysis.is_travel_image
+            image_url=image_url, is_violation=image_analysis.is_travel_image
         )
         db.session.add(new_image)
         db.session.commit()
@@ -91,30 +93,12 @@ def get_image(image_url):
 
 # Combines the POST/GET. GET if exists, if not, then POST and GET.
 @app.route("/images/<path:image_url>", methods=["PUT"])
-def get_or_post(image_url):
-    try:
-        app.logger.info("JWDEBUG: Post: " + image_url)
-        image = Image.query.filter_by(image_url=image_url).first()
-        if image:
-            return make_response(jsonify({"image": image.json()}), 200)
+def get_or_create(image_url):
+    lookup_resp = get_image(image_url)
+    if lookup_resp.status_code != 404:
+        return lookup_resp
 
-        image_analysis = openai_client.analyze_image(image_url)  # expensive call
-
-        new_image = Image(
-            image_url=image_url, is_violation=image_analysis.is_travel_image
-        )
-        app.logger.info(
-            "OpenAIClient cache: " + str(openai_client.analyze_image.cache_info())
-        )
-
-        # What happens when db.sesion requests two new images?
-        db.session.add(new_image)
-        db.session.commit()
-        return make_response(jsonify({"image": new_image.json()}), 404)
-    except Exception as e:
-        return make_response(
-            jsonify({"message": f"error updating image", "exception": str(e)}), 500
-        )
+    return create_image(image_url)
 
 
 # delete a image

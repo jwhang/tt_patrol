@@ -8,6 +8,7 @@ class ImageAnalysis(BaseModel):
     is_travel_image: bool
 
 
+# This LRU Cache does not work becas
 @lru_cache(maxsize=64)
 def analyze_image(image_url):
     client = OpenAI()

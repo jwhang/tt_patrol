@@ -113,7 +113,7 @@ function redact(node) {
 function isRedacted(node) {
   // TODO(jwhang): This is kind of broken and needs to be fixed.
   // It does not prevent re-redacting redacted messages.
-  node.nodeValue.startsWith(REDACTED_MSG);
+  return node.nodeValue.startsWith(REDACTED_MSG);
 }
 
 function isLasChicas() {

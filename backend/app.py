@@ -1,6 +1,5 @@
 import logging
 from os import environ
-from threading import RLock
 
 from flask import Flask, jsonify, make_response, request
 from flask_sqlalchemy import SQLAlchemy
@@ -51,6 +50,14 @@ def create_image(image_url=None):
             data = request.get_json()
             image_url = data["image_url"]
 
+        # This is an expensive query (~2-3s). Since the expected traffic
+        # beahvior is that create_image is bursty for the same image_url,
+        # this could lead to multiple calls to OpenAI for the same image.
+        #
+        # If this service was deployed with multiple instances, then such
+        # a queue-wprker scheme would be appropriate. However, since a
+        # single instance is expected to handle ~6 concurrent users, the
+        # current design is sufficient.
         image_analysis = openai_client.analyze_image(image_url)
 
         new_image = Image(
@@ -102,6 +109,7 @@ def get_or_create(image_url):
 
 
 # delete a image
+# TODO(jwhang): Protect DELETE with an API key.
 @app.route("/images/<path:image_url>", methods=["DELETE"])
 def delete_image(image_url):
     try:

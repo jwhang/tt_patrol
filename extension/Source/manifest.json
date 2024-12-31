@@ -14,6 +14,8 @@
 	"background": {
 		"service_worker": "background.js"
 	},
-	"host_permissions": ["*://localhost:*/*"]
+	"host_permissions": [
+		"*://172.232.7.65:*/*"
+	]
 
 }

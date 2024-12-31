@@ -1,9 +1,9 @@
 import logging
 from os import environ
 
+import openai_client
 from flask import Flask, jsonify, make_response, request
 from flask_sqlalchemy import SQLAlchemy
-from openai_client import OpenAIClient
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DB_URL")
@@ -23,8 +23,7 @@ class Image(db.Model):
 
 
 def setup_logging():
-    # if not app.debug:
-    if True:
+    if app.debug:
         # In production mode, add log handler to sys.stderr.
         app.logger.addHandler(logging.StreamHandler())
         app.logger.setLevel(logging.INFO)
@@ -48,7 +47,6 @@ def create_image():
         data = request.get_json()
         image_url = data["image_url"]
 
-        openai_client = OpenAIClient()
         image_analysis = openai_client.analyze_image(image_url)
 
         new_image = Image(
@@ -93,16 +91,21 @@ def get_image(image_url):
 @app.route("/images/<path:image_url>", methods=["PUT"])
 def get_or_post(image_url):
     try:
+        app.logger.info("JWDEBUG: Post: " + image_url)
         image = Image.query.filter_by(image_url=image_url).first()
         if image:
             return make_response(jsonify({"image": image.json()}), 200)
 
-        openai_client = OpenAIClient()
-        image_analysis = openai_client.analyze_image(image_url)
+        image_analysis = openai_client.analyze_image(image_url)  # expensive call
 
         new_image = Image(
             image_url=image_url, is_violation=image_analysis.is_travel_image
         )
+        app.logger.info(
+            "OpenAIClient cache: " + str(openai_client.analyze_image.cache_info())
+        )
+
+        # What happens when db.sesion requests two new images?
         db.session.add(new_image)
         db.session.commit()
         return make_response(jsonify({"image": new_image.json()}), 404)

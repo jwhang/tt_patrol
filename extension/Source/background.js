@@ -1,4 +1,5 @@
 baseUrl = "http://172.232.7.65:4000";
+//baseUrl = "http://localhost:4000";
 imageResourceName = "images";
 
 chrome.runtime.onMessage.addListener(

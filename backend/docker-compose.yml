@@ -8,8 +8,9 @@ services:
     ports:
       - "4000:4000"
     environment:
-      - DB_URL=postgresql://postgres:postgres@flask_db:5432/postgres
+      - DB_URL
       - OPENAI_API_KEY
+      - FLASK_ENV
     depends_on:
       - flask_db
     develop:

@@ -58,7 +58,7 @@ def create_image(image_url=None):
         )
         db.session.add(new_image)
         db.session.commit()
-        return make_response(jsonify({"message": "image created"}), 201)
+        return make_response(jsonify({"image": new_image.json()}), 201)
     except Exception as e:
         return make_response(
             jsonify({"message": f"error creating image", "exception": str(e)}), 500

@@ -1,9 +1,10 @@
 import logging
 from os import environ
 
-import openai_client
 from flask import Flask, jsonify, make_response, request
 from flask_sqlalchemy import SQLAlchemy
+
+import openai_client
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DB_URL")
@@ -23,10 +24,11 @@ class Image(db.Model):
 
 
 def setup_logging():
+    app.logger.addHandler(logging.StreamHandler())
     if app.debug:
-        # In production mode, add log handler to sys.stderr.
-        app.logger.addHandler(logging.StreamHandler())
         app.logger.setLevel(logging.INFO)
+    else:
+        app.logger.setLevel(logging.ERROR)
 
 
 with app.app_context():

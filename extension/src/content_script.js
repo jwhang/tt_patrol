@@ -11,6 +11,7 @@ const NAUGHTYLIST = [
   "plane[s]?",
   "timezone[s]?",
   "travel[s]?",
+  "trip[s]?",
   "TZ",
 ].map((word) => "\\b" + word + "\\b");
 const MIN_NUM_WORDS = 4; // Text must be at least MIN_NUM_WORDS to be analyzed for naughtiness.

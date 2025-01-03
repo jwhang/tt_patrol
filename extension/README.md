@@ -1,6 +1,8 @@
 # TT Patrol
 
-Patrols for Travel Tuesday violations.
+Patrols for Travel Tuesday violations in Messenger.
+
+Used https://github.com/chibat/chrome-extension-typescript-starter as a starting point.
 
 
 ## Setup
@@ -25,7 +27,7 @@ npm run watch
 
 ## Load extension to chrome
 
-Load `dist` directory
+Load `dist` directory (after `npm run build`).
 
 ## Test
 `npx jest` or `npm run test`

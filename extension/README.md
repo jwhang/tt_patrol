@@ -1,4 +1,31 @@
-TT Patrol
-=============
+# TT Patrol
 
-Chrome extension that enforces Travel Tuesday rules in Messenger
+Patrols for Travel Tuesday violations.
+
+
+## Setup
+
+```
+npm install
+```
+
+## Build
+
+```
+npm run build
+```
+
+## Build in watch mode
+
+### terminal
+
+```
+npm run watch
+```
+
+## Load extension to chrome
+
+Load `dist` directory
+
+## Test
+`npx jest` or `npm run test`

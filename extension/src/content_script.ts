@@ -1,5 +1,5 @@
 import { CHAT_ID, SCOOBY, MIN_HEIGHT, MIN_WIDTH } from './constants'
-import { isViolation, redactText, isRedactedText } from './redact_text';
+import { isViolation, redactText } from './redact_text';
 
 // Set up MutationObserver to monitor added nodes.
 const config = {
@@ -35,7 +35,7 @@ function patrolImages(node: Node): void {
 
   var imgs = node.getElementsByTagName("img");
   Array.from(imgs).forEach((img) => {
-    if (img.getAttribute("visited") === "true") {
+    if (isVisited(img)) {
       console.log("Skipping visited image: " + img.src);
       return;
     }
@@ -46,20 +46,21 @@ function patrolImages(node: Node): void {
     }
 
     evaluateAndRedactImage(img);
-    img.setAttribute("visted", "true");
+    markVisited(img);
   });
 }
 
 function patrolText(node: Node): void {
   const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null);
   while (walker.nextNode()) {
-    if (isRedactedText(walker.currentNode)) {
-      console.log("Skipping redacted material");
+    if (isVisited(walker.currentNode.parentElement)) {
+      console.log("Skipping evaluated text");
       continue;
     }
     if (isViolation(walker.currentNode)) {
       redactText(walker.currentNode);
     }
+    markVisited(walker.currentNode.parentElement);
   }
 }
 
@@ -79,4 +80,17 @@ async function evaluateAndRedactImage(image_element: HTMLImageElement): Promise<
       }
     },
   );
+}
+
+// Redact violating node.
+export function markVisited(element: Element | null): void {
+  if (element !== null) {
+    element.setAttribute("visted", "true");
+  }
+}
+
+// Redact violating node.
+export function isVisited(element: Element | null): boolean {
+  return element !== null &&
+    element.getAttribute("visted") === "true";
 }

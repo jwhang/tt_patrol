@@ -4,7 +4,7 @@ from os import environ
 from flask import Flask, jsonify, make_response, request
 from flask_sqlalchemy import SQLAlchemy
 
-import openai_client
+import media_analyzer
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DB_URL")
@@ -53,10 +53,10 @@ def create_media_file(url=None):
         # this could lead to multiple calls to OpenAI for the same media_file.
         #
         # If this service was deployed with multiple instances, then such
-        # a queue-wprker scheme would be appropriate. However, since a
+        # a queue-worker scheme would be appropriate. However, since a
         # single instance is expected to handle ~6 concurrent users, the
         # current design is sufficient.
-        content_analysis = openai_client.analyze_content(url)
+        content_analysis = media_analyzer.analyze_content(url)
 
         new_media_file = MediaFile(
             url=url, is_violation=content_analysis.is_travel_content

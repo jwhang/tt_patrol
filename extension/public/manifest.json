@@ -19,6 +19,6 @@
 		"service_worker": "js/background.js"
 	},
 	"host_permissions": [
-		"*://localhost:*/*"
+		"*://http://172.232.7.65:*/*"
 	]
 }

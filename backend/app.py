@@ -32,8 +32,8 @@ def setup_logging():
 
 
 with app.app_context():
-    db.create_all()
     setup_logging()
+    db.create_all()
 
 
 # create a test route

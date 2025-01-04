@@ -8,6 +8,9 @@ const config = {
   subtree: true,
 };
 const callback = (mutationList: MutationRecord[], observer: MutationObserver) => {
+  let isLasChicas = () => {
+    return window.location.pathname.startsWith(`/t/${CHAT_ID}`);
+  };
   mutationList.forEach((record) => {
     // Only patrol if correct chat.
     if (isLasChicas()) {
@@ -24,31 +27,11 @@ observer.observe(document.body, config);
 
 // Search for all subnodes of Text type which may need to be redacted.
 function patrol(node: Node): void {
-  patrolImages(node);
   patrolText(node);
+  patrolImages(node);
 }
 
 // Patrol helper functions
-
-function patrolImages(node: Node): void {
-  if (!(node instanceof Element)) return
-
-  var imgs = node.getElementsByTagName("img");
-  Array.from(imgs).forEach((img) => {
-    if (isVisited(img)) {
-      console.log("Skipping visited image: " + img.src);
-      return;
-    }
-
-    // Discard small images.
-    if (img.height < MIN_HEIGHT || img.width < MIN_WIDTH) {
-      return;
-    }
-
-    evaluateAndRedactImage(img);
-    markVisited(img);
-  });
-}
 
 function patrolText(node: Node): void {
   const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null);
@@ -64,9 +47,26 @@ function patrolText(node: Node): void {
   }
 }
 
-function isLasChicas(): boolean {
-  return window.location.pathname.startsWith(`/t/${CHAT_ID}`);
+function patrolImages(node: Node): void {
+  if (!(node instanceof Element)) return
+
+  var imgs = node.getElementsByTagName("img");
+  Array.from(imgs).forEach((img) => {
+    if (isVisited(img)) {
+      console.log("Skipping visited image");
+      return;
+    }
+
+    // Discard small images.
+    if (img.height < MIN_HEIGHT || img.width < MIN_WIDTH) {
+      return;
+    }
+
+    evaluateAndRedactImage(img);
+    markVisited(img);
+  });
 }
+
 
 async function evaluateAndRedactImage(image_element: HTMLImageElement): Promise<void> {
   chrome.runtime.sendMessage(
@@ -74,7 +74,6 @@ async function evaluateAndRedactImage(image_element: HTMLImageElement): Promise<
       url: image_element.src,
     },
     (response) => {
-      console.log(response);
       if (response.is_violation) {
         console.log("Redacting image: " + image_element.src);
         image_element.src = SCOOBY;

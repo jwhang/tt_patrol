@@ -8,7 +8,7 @@ const cache = new LRUCache({
 // TODO(jwhang): Need a client side cache
 chrome.runtime.onMessage.addListener(
   function(message, sender, senderResponse) {
-    let resourceUrl = `${BACKEND_URL}/images/${encodeURIComponent(message.url)}`;
+    let resourceUrl = `${BACKEND_URL}/media_files/${encodeURIComponent(message.url)}`;
     let cached_resp = cache.get(resourceUrl);
     if (cached_resp !== undefined) {
       console.log("Serving cached resp");

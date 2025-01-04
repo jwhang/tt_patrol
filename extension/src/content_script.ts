@@ -74,7 +74,8 @@ async function evaluateAndRedactImage(image_element: HTMLImageElement): Promise<
       url: image_element.src,
     },
     (response) => {
-      if (response.image.is_violation) {
+      console.log(response);
+      if (response.is_violation) {
         console.log("Redacting image: " + image_element.src);
         image_element.src = SCOOBY;
       }

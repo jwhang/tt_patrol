@@ -4,12 +4,16 @@ from openai import OpenAI
 from pydantic import BaseModel
 
 
-class ImageAnalysis(BaseModel):
-    is_travel_image: bool
+class ContentAnalysis(BaseModel):
+    is_travel_content: bool
 
 
 # This LRU Cache does not work becas
 @lru_cache(maxsize=64)
+def analyze_content(url):
+    return analyze_image(url)
+
+
 def analyze_image(image_url):
     client = OpenAI()
     completion = client.beta.chat.completions.parse(
@@ -36,7 +40,7 @@ def analyze_image(image_url):
                 ],
             },
         ],
-        response_format=ImageAnalysis,
+        response_format=ContentAnalysis,
     )
 
     response = completion.choices[0].message

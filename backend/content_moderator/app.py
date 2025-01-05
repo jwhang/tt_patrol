@@ -10,8 +10,8 @@ app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DB_URL")
 db = SQLAlchemy(app)
 
 
-class MediaFile(db.Model):
-    __tablename__ = "media_files"
+class Judgement(db.Model):
+    __tablename__ = "judgements"
 
     url = db.Column(db.String(1000), unique=True, nullable=False, primary_key=True)
     is_violation = db.Column(db.Boolean, unique=False, nullable=False)
@@ -39,9 +39,9 @@ def test():
     return make_response(jsonify({"message": "test route"}), 200)
 
 
-# create a media_file
-@app.route("/media_files", methods=["POST"])
-def create_media_file(url=None):
+# create a judgement
+@app.route("/judgements", methods=["POST"])
+def create_judgement(url=None):
     try:
         if url == None:
             data = request.get_json()
@@ -50,8 +50,8 @@ def create_media_file(url=None):
             url = data["url"]
 
         # This is an expensive query (~2-3s). Since the expected traffic
-        # beahvior is that create_media_file is bursty for the same url,
-        # this could lead to multiple calls to OpenAI for the same media_file.
+        # beahvior is that create_judgement is bursty for the same url,
+        # this could lead to multiple calls to OpenAI for the same judgement.
         #
         # If this service was deployed with multiple instances, then such
         # a queue-worker scheme would be appropriate. However, since a
@@ -59,68 +59,68 @@ def create_media_file(url=None):
         # current design is sufficient.
         content_analysis = media_analyzer.analyze_content(url)
 
-        new_media_file = MediaFile(
+        new_judgement = Judgement(
             url=url, is_violation=content_analysis.is_travel_content
         )
-        db.session.add(new_media_file)
+        db.session.add(new_judgement)
         db.session.commit()
-        return make_response(new_media_file.json(), 201)
+        return make_response(new_judgement.json(), 201)
     except Exception as e:
         return make_response(
-            jsonify({"message": f"error creating media_file", "exception": str(e)}), 500
+            jsonify({"message": f"error creating judgement", "exception": str(e)}), 500
         )
 
 
-# get all media_files
-@app.route("/media_files", methods=["GET"])
-def get_media_files():
+# get all judgements
+@app.route("/judgements", methods=["GET"])
+def get_judgements():
     try:
-        media_files = MediaFile.query.all()
+        judgements = Judgement.query.all()
         return make_response(
-            jsonify([media_file.json() for media_file in media_files]), 200
+            jsonify([judgement.json() for judgement in judgements]), 200
         )
     except Exception as e:
         return make_response(
-            jsonify({"message": f"error getting media_files", "exception": str(e)}), 500
+            jsonify({"message": f"error getting judgements", "exception": str(e)}), 500
         )
 
 
-# get a media_file by url
-@app.route("/media_files/<path:url>", methods=["GET"])
-def get_media_file(url):
+# get a judgement by url
+@app.route("/judgements/<path:url>", methods=["GET"])
+def get_judgement(url):
     try:
-        media_file = MediaFile.query.filter_by(url=url).first()
-        if media_file:
-            return make_response(media_file.json(), 200)
-        return make_response(jsonify({"message": "media_file not found"}), 404)
+        judgement = Judgement.query.filter_by(url=url).first()
+        if judgement:
+            return make_response(judgement.json(), 200)
+        return make_response(jsonify({"message": "judgement not found"}), 404)
     except Exception as e:
         return make_response(
-            jsonify({"message": f"error getting media_file", "exception": str(e)}), 500
+            jsonify({"message": f"error getting judgement", "exception": str(e)}), 500
         )
 
 
 # Combines the POST/GET. GET if exists, if not, then POST and GET.
-@app.route("/media_files/<path:url>", methods=["PUT"])
+@app.route("/judgements/<path:url>", methods=["PUT"])
 def get_or_create(url):
-    lookup_resp = get_media_file(url)
+    lookup_resp = get_judgement(url)
     if lookup_resp.status_code != 404:
         return lookup_resp
 
-    return create_media_file(url)
+    return create_judgement(url)
 
 
-# delete a media_file
+# delete a judgement
 # TODO(jwhang): Protect DELETE with an API key.
-@app.route("/media_files/<path:url>", methods=["DELETE"])
-def delete_media_file(url):
+@app.route("/judgements/<path:url>", methods=["DELETE"])
+def delete_judgement(url):
     try:
-        media_file = MediaFile.query.filter_by(url=url).first()
-        if media_file:
-            db.session.delete(media_file)
+        judgement = Judgement.query.filter_by(url=url).first()
+        if judgement:
+            db.session.delete(judgement)
             db.session.commit()
-            return make_response(jsonify({"message": "media_file deleted"}), 200)
-        return make_response(jsonify({"message": "media_file not found"}), 404)
+            return make_response(jsonify({"message": "judgement deleted"}), 200)
+        return make_response(jsonify({"message": "judgement not found"}), 404)
     except Exception as e:
         return make_response(
-            jsonify({"message": f"error deleting media_file", "exception": str(e)}), 500
+            jsonify({"message": f"error deleting judgement", "exception": str(e)}), 500
         )

@@ -1,7 +1,6 @@
 from enum import Enum
 from os import environ
-
-import requests
+from urllib import parse
 
 import openai_client
 import snapshotter_client
@@ -46,7 +45,6 @@ def analyze_video(video_url):
         raise Exception("Failed to make snapshot request.")
     if SNAPSHOTTER_SVC_URL is None:
         raise Exception("No address found for the snapshotter svc")
-    snapshot_url = (
-        f"{SNAPSHOTTER_SVC_URL}/snapshots/{requests.utils.requote_uri(video_url)}"
-    )
-    return analyze_video(snapshot_url)
+    encoded_url = parse.quote(video_url, safe="")
+    snapshot_url = f"{SNAPSHOTTER_SVC_URL}/snapshots/{encoded_url}"
+    return openai_client.analyze_image(snapshot_url)

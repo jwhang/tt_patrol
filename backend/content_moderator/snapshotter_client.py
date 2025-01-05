@@ -21,5 +21,7 @@ def make_snapshot(video_url):
     )
 
     if response.status_code != 201:
-        logger.error(f"Snapshot response from url '{snapshots_url}': {response.json()}")
-    return response.status_code == 201 or response.status_code == 200
+        logger.error(
+            f"Snapshot response from '{snapshots_url}' for video_url '{video_url}': {response.json()}"
+        )
+    return response.status_code == 201

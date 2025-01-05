@@ -11,6 +11,7 @@ services:
       - DB_URL
       - OPENAI_API_KEY
       - FLASK_ENV
+      - SNAPSHOTTER_SVC_ADDR
     depends_on:
       - flask_db
     develop:

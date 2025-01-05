@@ -1,23 +1,18 @@
-import cv2
+from os import environ
+
+import requests
+
+SNAPSHOTTER_SVC_URL = environ.get("SNAPSHOTTER_SVC_URL")
 
 
-def snapshot(video_url):
-    # Open the video file
-    capture = cv2.VideoCapture(video_url)
+def make_snapshot_request(video_url):
+    if SNAPSHOTTER_SVC_URL is None:
+        raise Exception("No address found for the snapshotter svc")
+    response = requests.post(
+        SNAPSHOTTER_SVC_URL,
+        json={
+            "video_url": video_url,
+        },
+    )
 
-    # Set the frame number (e.g., 100th frame)
-    frame_number = 0
-    capture.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
-
-    # Read the frame
-    success, frame = capture.read()
-
-    if success:
-        # Save the frame as an image
-        cv2.imwrite("snapshot.jpg", frame)
-        raise Exception("Snapshot saved as 'snapshot.jpg'")
-    else:
-        print("Failed to capture the frame")
-
-    # Release the video capture
-    capture.release()
+    return response.status_code == 201 or response.status_code == 200

@@ -1,10 +1,14 @@
 from enum import Enum
+from os import environ
+
+import requests
 
 import openai_client
 import video_snapshotter
 
 IMAGE_FILETYPES = ["jpg", "png"]
 VIDEO_FILETYPES = ["mp4"]
+SNAPSHOTTER_SVC_URL = environ.get("SNAPSHOTTER_SVC_URL")
 
 
 class MediaType(Enum):
@@ -38,4 +42,11 @@ def analyze_content(url):
 
 
 def analyze_video(video_url):
-    video_snapshotter.snapshot(video_url)
+    if not video_snapshotter.make_snapshot_request(video_url):
+        raise Exception("Failed to make snapshot request.")
+    if SNAPSHOTTER_SVC_URL is None:
+        raise Exception("No address found for the snapshotter svc")
+    snapshot_url = (
+        f"{SNAPSHOTTER_SVC_URL}/snapshots/{requests.utils.requote_uri(video_url)}"
+    )
+    return analyze_video(snapshot_url)

@@ -1,10 +1,9 @@
 import logging
 from os import environ
 
+import media_analyzer
 from flask import Flask, jsonify, make_response, request
 from flask_sqlalchemy import SQLAlchemy
-
-import media_analyzer
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DB_URL")
@@ -46,6 +45,8 @@ def create_media_file(url=None):
     try:
         if url == None:
             data = request.get_json()
+            if "url" not in data:
+                raise Exception("Invalid request, body must container 'url'")
             url = data["url"]
 
         # This is an expensive query (~2-3s). Since the expected traffic

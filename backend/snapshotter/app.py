@@ -1,10 +1,9 @@
 import logging
 from os import path, remove
 
+import video_snapshotter
 from flask import Flask, jsonify, make_response, request, send_file
 from flask_caching import Cache
-
-import video_snapshotter
 
 app = Flask(__name__)
 cache = Cache(
@@ -67,7 +66,6 @@ def create_snapshot(video_url=None):
         snapshot_file = video_snapshotter.snapshot_and_save(video_url)
 
         snapshot_cache.putSnapshot(video_url=video_url, snapshot_filepath=snapshot_file)
-        app.logger.error(f"POST snapshots: {snapshot_cache.getAllSnapshots()}")
         return make_response(jsonify({"message": f"succesfully created snapshot"}), 201)
     except Exception as e:
         # If there was a problem with the database commit, then remove the file.
@@ -81,14 +79,15 @@ def create_snapshot(video_url=None):
 # Get all snapshots.
 @app.route("/snapshots", methods=["GET"])
 def get_snapshots():
-    try:
-        snapshots = snapshot_cache.getAllSnapshots()
-        app.logger.error(f"GET Snapshots: {snapshots}")
-        return make_response(jsonify(snapshots), 200)
-    except Exception as e:
-        return make_response(
-            jsonify({"message": f"error getting snapshot", "exception": str(e)}), 500
-        )
+    return make_response(
+        jsonify(
+            {
+                "message": "error getting snapshots",
+                "exception": "unsupported endpoint",
+            },
+        ),
+        500,
+    )
 
 
 # Get a snapshot by video_url.
@@ -96,7 +95,6 @@ def get_snapshots():
 def get_snapshot(video_url):
     try:
         snapshot_filepath = snapshot_cache.getSnapshotFilepath(video_url)
-        app.logger.error(f"GET Snapshots: {snapshot_filepath}")
         if not snapshot_filepath:
             return make_response(jsonify({"message": "snapshot not found"}), 404)
         return send_file(snapshot_filepath, "image/gif")
@@ -120,11 +118,9 @@ def get_or_create(video_url):
 # Delete a snapshot
 @app.route("/snapshots/<path:video_url>", methods=["DELETE"])
 def delete_snapshot(video_url):
-    try:
-        return make_response(
-            jsonify({"message": "currently unsupported endpoint"}), 404
-        )
-    except Exception as e:
-        return make_response(
-            jsonify({"message": f"error deleting snapshot", "exception": str(e)}), 500
-        )
+    return make_response(
+        jsonify(
+            {"message": f"error deleting snapshot", "exception": "unsupported endpoint"}
+        ),
+        500,
+    )

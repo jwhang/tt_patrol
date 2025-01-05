@@ -1,9 +1,8 @@
 from enum import Enum
 from os import environ
 
-import requests
-
 import openai_client
+import requests
 import video_snapshotter
 
 IMAGE_FILETYPES = ["jpg", "png"]
@@ -34,7 +33,7 @@ def getMediaType(url):
 def analyze_content(url):
     media_type = getMediaType(url)
     if media_type == MediaType.UNKNOWN:
-        raise Exception("Unknown file type for {url}")
+        raise Exception(f"Unknown file type for {url}")
     elif media_type == MediaType.IMAGE:
         return openai_client.analyze_image(url)
     elif media_type == MediaType.VIDEO:

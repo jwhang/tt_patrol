@@ -1,8 +1,8 @@
 services:
-  content_moderator_app:
-    container_name: content_moderator_app 
-    image: gerenuk/content_moderator_app:latest
-    build: ./content_moderator/
+  judge_app:
+    container_name: judge_app 
+    image: gerenuk/judge_app:latest
+    build: ./judge/
     ports:
       - "4000:4000"
     env_file:
@@ -17,7 +17,7 @@ services:
     develop:
       watch:
         - action: sync+restart
-          path: ./content_moderator/
+          path: ./judge/
           target: ./app
   video_snapshotter_app:
     container_name: video_snapshotter_app 

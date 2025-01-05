@@ -27,10 +27,10 @@ jobs:
         name: Build and push content moderator service
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:backend/content_moderator"
+          context: "{{defaultContext}}:backend/judge"
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/content_moderator_app:latest
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/judge_app:latest
       -
         name: Build and push video snapshotter service
         uses: docker/build-push-action@v6

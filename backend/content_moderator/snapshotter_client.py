@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 SNAPSHOTTER_SVC_URL = environ.get("SNAPSHOTTER_SVC_URL")
 
 
-def make_snapshot_request(video_url):
+def make_snapshot(video_url):
     if SNAPSHOTTER_SVC_URL is None:
         raise Exception("No address found for the snapshotter svc")
     snapshots_url = f"{SNAPSHOTTER_SVC_URL}/snapshots"

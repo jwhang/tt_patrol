@@ -1,9 +1,10 @@
 from enum import Enum
 from os import environ
 
-import openai_client
 import requests
-import video_snapshotter
+
+import openai_client
+import snapshotter_client
 
 IMAGE_FILETYPES = ["jpg", "png"]
 VIDEO_FILETYPES = ["mp4"]
@@ -41,7 +42,7 @@ def analyze_content(url):
 
 
 def analyze_video(video_url):
-    if not video_snapshotter.make_snapshot_request(video_url):
+    if not snapshotter_client.make_snapshot(video_url):
         raise Exception("Failed to make snapshot request.")
     if SNAPSHOTTER_SVC_URL is None:
         raise Exception("No address found for the snapshotter svc")

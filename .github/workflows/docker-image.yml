@@ -2,7 +2,7 @@ name: Docker Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, video ]
     paths:
       - 'backend/**'
       - '.github/workflows/*'
@@ -27,7 +27,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:backend"
+          context: "{{defaultContext}}:backend/content_moderator"
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/flask_live_app:latest
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/moderator_app:latest

@@ -1,7 +1,7 @@
 services:
-  moderator_app:
-    container_name: moderator_app 
-    image: gerenuk/moderator_app:latest
+  content_moderator_app:
+    container_name: content_moderator_app 
+    image: gerenuk/content_moderator_app:latest
     build: ./content_moderator/
     ports:
       - "4000:4000"
@@ -19,10 +19,10 @@ services:
         - action: sync+restart
           path: ./content_moderator/
           target: ./app
-  snapshot_app:
-    container_name: snapshot_app 
-    image: gerenuk/snapshot_app:latest
-    build: ./snapshot/
+  video_snapshotter_app:
+    container_name: video_snapshotter_app 
+    image: gerenuk/video_snapshotter_app:latest
+    build: ./snapshotter/
     ports:
       - "4001:4001"
     env_file:
@@ -32,7 +32,7 @@ services:
     develop:
       watch:
         - action: sync+restart
-          path: ./snapshot/
+          path: ./snapshotter/
           target: ./app
   flask_db:
     container_name: flask_db

@@ -1,8 +1,8 @@
 services:
-  flask_app:
-    container_name: flask_app
-    image: gerenuk/flask_live_app:latest
-    build: .
+  moderator_app:
+    container_name: moderator_app 
+    image: gerenuk/moderator_app:latest
+    build: ./content_moderator/
     ports:
       - "4000:4000"
     env_file:
@@ -16,7 +16,22 @@ services:
     develop:
       watch:
         - action: sync+restart
-          path: ./
+          path: ./content_moderator/
+          target: ./app
+  snapshot_app:
+    container_name: snapshot_app 
+    image: gerenuk/snapshot_app:latest
+    build: ./snapshot/
+    ports:
+      - "4001:4001"
+    env_file:
+      - .env
+    environment:
+      - FLASK_ENV
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./snapshot/
           target: ./app
   flask_db:
     container_name: flask_db

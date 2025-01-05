@@ -27,6 +27,7 @@ observer.observe(document.body, config);
 
 // Search for all subnodes of Text type which may need to be redacted.
 function patrol(node: Node): void {
+  patrolVideos(node);
   patrolText(node);
   patrolImages(node);
 }
@@ -67,6 +68,15 @@ function patrolImages(node: Node): void {
   });
 }
 
+function patrolVideos(node: Node): void {
+  if (!(node instanceof Element)) return
+
+  var videos = node.getElementsByTagName("video");
+  Array.from(videos).forEach((video) => {
+    console.log("JWDEBUG logging videos");
+    console.log(video.src);
+  });
+}
 
 async function evaluateAndRedactImage(image_element: HTMLImageElement): Promise<void> {
   chrome.runtime.sendMessage(

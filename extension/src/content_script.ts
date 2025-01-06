@@ -27,9 +27,9 @@ observer.observe(document.body, config);
 
 // Search for all subnodes of Text type which may need to be redacted.
 function patrol(node: Node): void {
-  patrolVideos(node);
   patrolText(node);
   patrolImages(node);
+  patrolVideos(node);
 }
 
 // Patrol helper functions
@@ -63,7 +63,7 @@ function patrolImages(node: Node): void {
       return;
     }
 
-    evaluateAndRedactImage(img);
+    evaluateAndRedactContent(img);
     markVisited(img);
   });
 }
@@ -73,20 +73,26 @@ function patrolVideos(node: Node): void {
 
   var videos = node.getElementsByTagName("video");
   Array.from(videos).forEach((video) => {
-    console.log("JWDEBUG logging videos");
-    console.log(video.src);
+    if (isVisited(video)) {
+      console.log("Skipping visited video");
+      return;
+    }
+
+    evaluateAndRedactContent(video);
+    markVisited(video);
   });
 }
 
-async function evaluateAndRedactImage(image_element: HTMLImageElement): Promise<void> {
+async function evaluateAndRedactContent(element: HTMLImageElement | HTMLVideoElement): Promise<void> {
   chrome.runtime.sendMessage(
     {
-      url: image_element.src,
+      url: element.src,
     },
     (response) => {
       if (response.is_violation) {
-        console.log("Redacting image: " + image_element.src);
-        image_element.src = SCOOBY;
+        console.log("Redacting media: " + element.src);
+        //element.src = SCOOBY;
+        element.src = chrome.runtime.getURL("images/scooby-no.jpg");
       }
     },
   );

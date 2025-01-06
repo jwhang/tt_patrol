@@ -1,21 +1,14 @@
-from functools import lru_cache
-
 from openai import OpenAI
 from pydantic import BaseModel
+
+client = OpenAI()
 
 
 class ContentAnalysis(BaseModel):
     is_travel_content: bool
 
 
-# This LRU Cache does not work becas
-@lru_cache(maxsize=64)
-def analyze_content(url):
-    return analyze_image(url)
-
-
 def analyze_image(image_url):
-    client = OpenAI()
     completion = client.beta.chat.completions.parse(
         model="gpt-4o-mini",
         messages=[

@@ -1,5 +1,15 @@
-import { CHAT_ID, SCOOBY, MIN_HEIGHT, MIN_WIDTH } from './constants'
+import { CHAT_ID, SCOOBY, SCOOBY_VID, MIN_HEIGHT, MIN_WIDTH } from './constants'
 import { isViolation, redactText } from './redact_text';
+
+let patrol_enabled: boolean = true;
+
+chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
+  console.log("Patrol enabled listener: " + patrol_enabled);
+  if (patrol_enabled != msg.patrol_enabled) {
+    //location.reload();
+    patrol_enabled = msg.patrol_enabled;
+  }
+});
 
 // Set up MutationObserver to monitor added nodes.
 const config = {
@@ -8,17 +18,18 @@ const config = {
   subtree: true,
 };
 const callback = (mutationList: MutationRecord[], observer: MutationObserver) => {
-  let isLasChicas = () => {
+  const isLasChicas = () => {
     return window.location.pathname.startsWith(`/t/${CHAT_ID}`);
   };
+  if (!(patrol_enabled && isLasChicas())) {
+    return;
+  }
   mutationList.forEach((record) => {
     // Only patrol if correct chat.
-    if (isLasChicas()) {
-      record.addedNodes.forEach((node) => {
-        // Defer patrol() because TreeWalking and Regex matching are expensive.
-        requestIdleCallback(() => patrol(node));
-      });
-    }
+    record.addedNodes.forEach((node) => {
+      // Defer patrol() because TreeWalking and Regex matching are expensive.
+      requestIdleCallback(() => patrol(node));
+    });
   });
 };
 
@@ -29,6 +40,7 @@ observer.observe(document.body, config);
 function patrol(node: Node): void {
   patrolText(node);
   patrolImages(node);
+  patrolVideos(node);
 }
 
 // Patrol helper functions
@@ -37,7 +49,6 @@ function patrolText(node: Node): void {
   const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null);
   while (walker.nextNode()) {
     if (isVisited(walker.currentNode.parentElement)) {
-      console.log("Skipping evaluated text");
       continue;
     }
     if (isViolation(walker.currentNode)) {
@@ -53,7 +64,6 @@ function patrolImages(node: Node): void {
   var imgs = node.getElementsByTagName("img");
   Array.from(imgs).forEach((img) => {
     if (isVisited(img)) {
-      console.log("Skipping visited image");
       return;
     }
 
@@ -62,21 +72,42 @@ function patrolImages(node: Node): void {
       return;
     }
 
-    evaluateAndRedactImage(img);
+    evaluateAndRedactContent(img);
     markVisited(img);
   });
 }
 
+function patrolVideos(node: Node): void {
+  if (!(node instanceof Element)) return
 
-async function evaluateAndRedactImage(image_element: HTMLImageElement): Promise<void> {
+  var videos = node.getElementsByTagName("video");
+  Array.from(videos).forEach((video) => {
+    if (isVisited(video)) {
+      return;
+    }
+
+    evaluateAndRedactContent(video);
+    markVisited(video);
+  });
+}
+
+async function evaluateAndRedactContent(element: HTMLImageElement | HTMLVideoElement): Promise<void> {
   chrome.runtime.sendMessage(
     {
-      url: image_element.src,
+      url: element.src,
     },
     (response) => {
       if (response.is_violation) {
-        console.log("Redacting image: " + image_element.src);
-        image_element.src = SCOOBY;
+        if (element instanceof HTMLImageElement) {
+          element.src = chrome.runtime.getURL(SCOOBY);
+        } else if (element instanceof HTMLVideoElement) {
+          // Replaces the VideoHTMLElement with an ImageHTMLElement.
+          const placeholder = document.createElement("img");
+          placeholder.src = chrome.runtime.getURL(SCOOBY_VID);
+          placeholder.style.height = "100%"
+          placeholder.style.width = "100%"
+          element.replaceWith(placeholder);
+        }
       }
     },
   );

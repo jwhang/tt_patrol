@@ -1,8 +1,8 @@
 services:
-  flask_app:
-    container_name: flask_app
-    image: gerenuk/flask_live_app:latest
-    build: .
+  judge_app:
+    container_name: judge_app 
+    image: gerenuk/judge_app:latest
+    build: ./judge/
     ports:
       - "4000:4000"
     env_file:
@@ -11,12 +11,28 @@ services:
       - DB_URL
       - OPENAI_API_KEY
       - FLASK_ENV
+      - SNAPSHOTTER_SVC_URL
     depends_on:
       - flask_db
     develop:
       watch:
         - action: sync+restart
-          path: ./
+          path: ./judge/
+          target: ./app
+  video_snapshotter_app:
+    container_name: video_snapshotter_app 
+    image: gerenuk/video_snapshotter_app:latest
+    build: ./snapshotter/
+    ports:
+      - "4001:4001"
+    env_file:
+      - .env
+    environment:
+      - FLASK_ENV
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./snapshotter/
           target: ./app
   flask_db:
     container_name: flask_db

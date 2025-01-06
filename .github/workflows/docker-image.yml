@@ -2,7 +2,7 @@ name: Docker Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, video ]
     paths:
       - 'backend/**'
       - '.github/workflows/*'
@@ -24,10 +24,18 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       -
-        name: Build and push
+        name: Build and push content moderator service
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:backend"
+          context: "{{defaultContext}}:backend/judge"
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/flask_live_app:latest
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/judge_app:latest
+      -
+        name: Build and push video snapshotter service
+        uses: docker/build-push-action@v6
+        with:
+          context: "{{defaultContext}}:backend/snapshotter"
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/video_snapshotter_app:latest

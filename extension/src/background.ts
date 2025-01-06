@@ -5,13 +5,12 @@ const cache = new LRUCache({
   max: 100,  // max size
 });
 
-// TODO(jwhang): Need a client side cache
 chrome.runtime.onMessage.addListener(
   function(message, sender, senderResponse) {
-    let resourceUrl = `${BACKEND_URL}/media_files/${encodeURIComponent(message.url)}`;
+    let resourceUrl = `${BACKEND_URL}/judgements/${encodeURIComponent(message.url)}`;
     let cached_resp = cache.get(resourceUrl);
     if (cached_resp !== undefined) {
-      console.log("Serving cached resp");
+      console.log("serving cached resp");
       senderResponse(cached_resp)
       return true;
     }

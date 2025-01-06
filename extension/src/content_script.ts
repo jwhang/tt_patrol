@@ -1,4 +1,4 @@
-import { CHAT_ID, SCOOBY, MIN_HEIGHT, MIN_WIDTH } from './constants'
+import { CHAT_ID, SCOOBY, SCOOBY_VID, MIN_HEIGHT, MIN_WIDTH } from './constants'
 import { isViolation, redactText } from './redact_text';
 
 // Set up MutationObserver to monitor added nodes.
@@ -38,7 +38,6 @@ function patrolText(node: Node): void {
   const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null);
   while (walker.nextNode()) {
     if (isVisited(walker.currentNode.parentElement)) {
-      console.log("Skipping evaluated text");
       continue;
     }
     if (isViolation(walker.currentNode)) {
@@ -54,7 +53,6 @@ function patrolImages(node: Node): void {
   var imgs = node.getElementsByTagName("img");
   Array.from(imgs).forEach((img) => {
     if (isVisited(img)) {
-      console.log("Skipping visited image");
       return;
     }
 
@@ -74,7 +72,6 @@ function patrolVideos(node: Node): void {
   var videos = node.getElementsByTagName("video");
   Array.from(videos).forEach((video) => {
     if (isVisited(video)) {
-      console.log("Skipping visited video");
       return;
     }
 
@@ -90,9 +87,16 @@ async function evaluateAndRedactContent(element: HTMLImageElement | HTMLVideoEle
     },
     (response) => {
       if (response.is_violation) {
-        console.log("Redacting media: " + element.src);
-        //element.src = SCOOBY;
-        element.src = chrome.runtime.getURL("images/scooby-no.jpg");
+        if (element instanceof HTMLImageElement) {
+          element.src = chrome.runtime.getURL(SCOOBY);
+        } else if (element instanceof HTMLVideoElement) {
+          // Replaces the VideoHTMLElement with an ImageHTMLElement.
+          let placeholder = document.createElement("img");
+          placeholder.src = chrome.runtime.getURL(SCOOBY_VID);
+          placeholder.style.height = "100%"
+          placeholder.style.width = "100%"
+          element.replaceWith(placeholder);
+        }
       }
     },
   );

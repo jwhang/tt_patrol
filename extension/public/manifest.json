@@ -9,7 +9,10 @@
   	},
 	"web_accessible_resources": [
 		{
-			"resources": ["images/scooby-no.jpg"],
+			"resources": [
+				"media/scooby-no.jpg", 
+				"media/scooby-ruh-roh.gif"
+			],
 			"matches": ["*://*.messenger.com/*"]
 		}
 	],

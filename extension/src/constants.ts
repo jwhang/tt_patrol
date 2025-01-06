@@ -19,6 +19,7 @@ export const REDACTED_MSG = "Redacted: ";
 export const CHAT_ID = 1621389464744799;
 export const MIN_HEIGHT = 100;
 export const MIN_WIDTH = 100;
-export const SCOOBY = "images/scooby-no.jpg";
+export const SCOOBY = "media/scooby-no.jpg";
+export const SCOOBY_VID = "media/scooby-ruh-roh.gif";
 export const BACKEND_URL = "http://172.232.7.65:4000";
 

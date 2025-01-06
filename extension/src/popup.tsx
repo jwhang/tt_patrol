@@ -1,57 +1,45 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { getDay } from './patrol_state'
+import { useChromeStorageSession } from 'use-chrome-storage';
+import { SCOOBY_SLEEPING, SCOOBY_SNIFFING } from './constants'
 
-const daysOfTheWeek: string[] = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday"
-];
-
-function day(): string {
-  return daysOfTheWeek[new Date().getDay()];
-}
-
-
-async function getPatrolEnabled() {
-  let resp = await chrome.storage.local.get("patrolEnabled");
-  return resp.get("patrolEnabled");
-}
-
-async function setPatrolEnabled(patrol_enabled: boolean) {
-  await chrome.storage.local.set({ patorl_enabled: patrol_enabled });
-}
 
 const Popup = () => {
-  const initial_state = day() === "Tuesday" ? false : true;
-  // I shouldn't use initial status, I need a chrome-wide status
-  const [patrolEnabled, setPatrolEnabled] = useState(initial_state);
+  const initial_state = getDay() === "Tuesday" ? false : true;
+  const [patrolEnabled, setPatrolEnabled] = useChromeStorageSession("patrolEnabled", initial_state);
 
-  useEffect(() => {
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-      tabs.forEach((tab: chrome.tabs.Tab) => {
-        if (!tab.id) return
-        console.log("patrol_enabled: " + patrolEnabled);
+  const dayOfWeekMessage = () => {
+    if (getDay() === "Tuesday") {
+      return "Today is TRAVEL TUESDAY"
+    } else {
+      return `Today is ${getDay()}`;
+    }
+  }
 
+  const patrolStatusMessage = () => {
+    if (patrolEnabled) {
+      return "Scooby is on the patrol";
+    } else {
+      return "Scooby is sleeping";
+    }
+  }
 
-        chrome.tabs.sendMessage(
-          tab.id,
-          {
-            patrol_enabled: patrolEnabled
-          },
-          (msg) => {
-            console.log("result message:", msg);
-          }
-        );
-      });
-    });
-  }, [patrolEnabled]);
+  const scoobyImage = () => {
+    const scooby_gif = patrolEnabled ? SCOOBY_SNIFFING : SCOOBY_SLEEPING;
+
+    return (
+      <img
+        src={scooby_gif}
+        height="400"
+        width="400">
+      </img >
+    );
+
+  }
 
   const enableButton = () => {
-    const message = patrolEnabled ? "Deactivate TT Patrol" : "Activate TT Patrol";
+    const message = patrolEnabled ? "Stop Patrol" : "Scooby Wake Up";
     return (
       <button
         onClick={() => setPatrolEnabled(!patrolEnabled)}
@@ -62,15 +50,27 @@ const Popup = () => {
     );
   }
 
-
   return (
     <>
       <div style={{ minWidth: "700px" }}>
         <h1 style={{ fontSize: "30px" }}>
-          Today is <b>{day()}</b>
+          {dayOfWeekMessage()}
         </h1>
       </div>
-      {enableButton()}
+
+      <div>
+        <text style={{ fontSize: "20px" }}>
+          {patrolStatusMessage()}
+        </text>
+      </div>
+
+      <div>
+        {scoobyImage()}
+      </div>
+
+      <div>
+        {enableButton()}
+      </div>
     </>
   );
 };

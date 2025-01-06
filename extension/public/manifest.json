@@ -27,6 +27,9 @@
 	"background": {
 		"service_worker": "js/background.js"
 	},
+	"permissions": [
+		"storage"
+	],
 	"host_permissions": [
 		"http://172.232.7.65:*/*"
 	]

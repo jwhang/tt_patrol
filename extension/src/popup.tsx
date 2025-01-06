@@ -1,50 +1,76 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 
+const daysOfTheWeek: string[] = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday"
+];
+
+function day(): string {
+  return daysOfTheWeek[new Date().getDay()];
+}
+
+
+async function getPatrolEnabled() {
+  let resp = await chrome.storage.local.get("patrolEnabled");
+  return resp.get("patrolEnabled");
+}
+
+async function setPatrolEnabled(patrol_enabled: boolean) {
+  await chrome.storage.local.set({ patorl_enabled: patrol_enabled });
+}
+
 const Popup = () => {
-  const [count, setCount] = useState(0);
-  const [currentURL, setCurrentURL] = useState<string>();
-
-  useEffect(() => {
-    chrome.action.setBadgeText({ text: count.toString() });
-  }, [count]);
+  const initial_state = day() === "Tuesday" ? false : true;
+  // I shouldn't use initial status, I need a chrome-wide status
+  const [patrolEnabled, setPatrolEnabled] = useState(initial_state);
 
   useEffect(() => {
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-      setCurrentURL(tabs[0].url);
-    });
-  }, []);
+      tabs.forEach((tab: chrome.tabs.Tab) => {
+        if (!tab.id) return
+        console.log("patrol_enabled: " + patrolEnabled);
 
-  const changeBackground = () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-      const tab = tabs[0];
-      if (tab.id) {
+
         chrome.tabs.sendMessage(
           tab.id,
           {
-            color: "#555555",
+            patrol_enabled: patrolEnabled
           },
           (msg) => {
             console.log("result message:", msg);
           }
         );
-      }
+      });
     });
-  };
+  }, [patrolEnabled]);
+
+  const enableButton = () => {
+    const message = patrolEnabled ? "Deactivate TT Patrol" : "Activate TT Patrol";
+    return (
+      <button
+        onClick={() => setPatrolEnabled(!patrolEnabled)}
+        style={{ marginRight: "5px" }}
+      >
+        {message}
+      </button>
+    );
+  }
+
 
   return (
     <>
-      <ul style={{ minWidth: "700px" }}>
-        <li>Current URL: {currentURL}</li>
-        <li>Current Time: {new Date().toLocaleTimeString()}</li>
-      </ul>
-      <button
-        onClick={() => setCount(count + 1)}
-        style={{ marginRight: "5px" }}
-      >
-        count up
-      </button>
-      <button onClick={changeBackground}>change background</button>
+      <div style={{ minWidth: "700px" }}>
+        <h1 style={{ fontSize: "30px" }}>
+          Today is <b>{day()}</b>
+        </h1>
+      </div>
+      {enableButton()}
     </>
   );
 };

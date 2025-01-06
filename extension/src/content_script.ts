@@ -1,6 +1,16 @@
 import { CHAT_ID, SCOOBY, SCOOBY_VID, MIN_HEIGHT, MIN_WIDTH } from './constants'
 import { isViolation, redactText } from './redact_text';
 
+let patrol_enabled: boolean = true;
+
+chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
+  console.log("Patrol enabled listener: " + patrol_enabled);
+  if (patrol_enabled != msg.patrol_enabled) {
+    //location.reload();
+    patrol_enabled = msg.patrol_enabled;
+  }
+});
+
 // Set up MutationObserver to monitor added nodes.
 const config = {
   attributes: false,
@@ -8,17 +18,18 @@ const config = {
   subtree: true,
 };
 const callback = (mutationList: MutationRecord[], observer: MutationObserver) => {
-  let isLasChicas = () => {
+  const isLasChicas = () => {
     return window.location.pathname.startsWith(`/t/${CHAT_ID}`);
   };
+  if (!(patrol_enabled && isLasChicas())) {
+    return;
+  }
   mutationList.forEach((record) => {
     // Only patrol if correct chat.
-    if (isLasChicas()) {
-      record.addedNodes.forEach((node) => {
-        // Defer patrol() because TreeWalking and Regex matching are expensive.
-        requestIdleCallback(() => patrol(node));
-      });
-    }
+    record.addedNodes.forEach((node) => {
+      // Defer patrol() because TreeWalking and Regex matching are expensive.
+      requestIdleCallback(() => patrol(node));
+    });
   });
 };
 
@@ -91,7 +102,7 @@ async function evaluateAndRedactContent(element: HTMLImageElement | HTMLVideoEle
           element.src = chrome.runtime.getURL(SCOOBY);
         } else if (element instanceof HTMLVideoElement) {
           // Replaces the VideoHTMLElement with an ImageHTMLElement.
-          let placeholder = document.createElement("img");
+          const placeholder = document.createElement("img");
           placeholder.src = chrome.runtime.getURL(SCOOBY_VID);
           placeholder.style.height = "100%"
           placeholder.style.width = "100%"

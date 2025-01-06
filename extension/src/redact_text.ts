@@ -1,4 +1,4 @@
-import { MIN_NUM_WORDS, NAUGHTYLIST, REDACTED_MSG } from './constants'
+import { MIN_NUM_WORDS, NAUGHTYLIST } from './constants'
 
 // Returns true if given string should be redacted.
 export function isViolation(node: Node): boolean {

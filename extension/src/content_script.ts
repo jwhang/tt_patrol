@@ -1,40 +1,49 @@
 import { CHAT_ID, SCOOBY, SCOOBY_VID, MIN_HEIGHT, MIN_WIDTH } from './constants'
 import { isViolation, redactText } from './redact_text';
+import { getPatrolState } from './patrol_state'
 
-let patrol_enabled: boolean = true;
 
-chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
-  console.log("Patrol enabled listener: " + patrol_enabled);
-  if (patrol_enabled != msg.patrol_enabled) {
-    //location.reload();
-    patrol_enabled = msg.patrol_enabled;
-  }
+chrome.storage.session.onChanged.addListener((changes: { [key: string]: chrome.storage.StorageChange }) => {
+  // Assumes that only 'patrolEnabled' boolean is stored in chrome storage.
+  // If more data is added to chrome storage, then the changes must be 
+  // more closely sifted through to make sure we don't reload needlessly.
+  window.location.reload();
 });
 
-// Set up MutationObserver to monitor added nodes.
-const config = {
-  attributes: false,
-  childList: true,
-  subtree: true,
-};
-const callback = (mutationList: MutationRecord[], observer: MutationObserver) => {
-  const isLasChicas = () => {
-    return window.location.pathname.startsWith(`/t/${CHAT_ID}`);
-  };
-  if (!(patrol_enabled && isLasChicas())) {
+async function setUpObserver(): Promise<void> {
+  const locationIsLasChicas = window.location.pathname.startsWith(`/t/${CHAT_ID}`);
+  if (locationIsLasChicas) {
+    return
+  }
+
+  let patrolEnabled = await getPatrolState();
+  console.log("TTPatrol enabled status: " + patrolEnabled);
+
+  if (!patrolEnabled) {
     return;
   }
-  mutationList.forEach((record) => {
-    // Only patrol if correct chat.
-    record.addedNodes.forEach((node) => {
-      // Defer patrol() because TreeWalking and Regex matching are expensive.
-      requestIdleCallback(() => patrol(node));
-    });
-  });
-};
 
-const observer = new MutationObserver(callback);
-observer.observe(document.body, config);
+  // Set up MutationObserver to monitor added nodes.
+  const config = {
+    attributes: false,
+    childList: true,
+    subtree: true,
+  };
+  const callback = (mutationList: MutationRecord[], observer: MutationObserver) => {
+    mutationList.forEach((record) => {
+      // Only patrol if correct chat.
+      record.addedNodes.forEach((node) => {
+        // Defer patrol() because TreeWalking and Regex matching are expensive.
+        requestIdleCallback(() => patrol(node));
+      });
+    });
+  };
+
+  const observer = new MutationObserver(callback);
+  observer.observe(document.body, config);
+}
+
+setUpObserver()
 
 // Search for all subnodes of Text type which may need to be redacted.
 function patrol(node: Node): void {

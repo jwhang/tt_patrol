@@ -3,12 +3,14 @@ import { isViolation, redactText } from './redact_text';
 import { getPatrolState } from './patrol_state'
 
 
-chrome.storage.session.onChanged.addListener((changes: { [key: string]: chrome.storage.StorageChange }) => {
-  // Assumes that only 'patrolEnabled' boolean is stored in chrome storage.
-  // If more data is added to chrome storage, then the changes must be 
-  // more closely sifted through to make sure we don't reload needlessly.
-  window.location.reload();
-});
+chrome.storage.session.onChanged.addListener(
+  (changes: { [key: string]: chrome.storage.StorageChange }) => {
+    // Assumes that only 'patrolEnabled' boolean is stored in chrome storage.
+    // If more data is added to chrome storage, then the changes must be 
+    // more closely sifted through to make sure we don't reload needlessly.
+    window.location.reload();
+  });
+
 
 async function setUpObserver(): Promise<void> {
   const locationIsLasChicas = window.location.pathname.startsWith(`/t/${CHAT_ID}`);
@@ -17,7 +19,7 @@ async function setUpObserver(): Promise<void> {
   }
 
   let patrolEnabled = await getPatrolState();
-  console.log("TTPatrol enabled status: " + patrolEnabled);
+  console.log("TTPatrol enabled: " + patrolEnabled);
 
   if (!patrolEnabled) {
     return;
@@ -81,7 +83,7 @@ function patrolImages(node: Node): void {
       return;
     }
 
-    evaluateAndRedactContent(img);
+    evaluateAndRedact(img);
     markVisited(img);
   });
 }
@@ -95,12 +97,13 @@ function patrolVideos(node: Node): void {
       return;
     }
 
-    evaluateAndRedactContent(video);
+    evaluateAndRedact(video);
     markVisited(video);
   });
 }
 
-async function evaluateAndRedactContent(element: HTMLImageElement | HTMLVideoElement): Promise<void> {
+async function evaluateAndRedact(element: HTMLImageElement | HTMLVideoElement):
+  Promise<void> {
   chrome.runtime.sendMessage(
     {
       url: element.src,

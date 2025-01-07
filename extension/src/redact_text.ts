@@ -3,7 +3,10 @@ import { MIN_NUM_WORDS, NAUGHTYLIST } from './constants'
 // Returns true if given string should be redacted.
 export function isViolation(node: Node): boolean {
   function isValidElement(node: Node) {
-    return node.parentElement !== null && node.parentElement.tagName.toLowerCase() != "script";
+    return (
+      node.parentElement !== null &&
+      node.parentElement.tagName.toLowerCase() != "script"
+    );
   }
   function isLongEnough(content: string | null) {
     if (content == null) return false
@@ -25,7 +28,6 @@ export function isViolation(node: Node): boolean {
 
 // Redact violating node.
 export function redactText(node: Node) {
-  console.log(`Redacting: "${node.nodeValue}"`);
   if (node.parentElement !== null) {
     node.parentElement.style.color = "black"
     node.parentElement.style.backgroundColor = "black"

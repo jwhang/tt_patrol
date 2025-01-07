@@ -1,9 +1,6 @@
 import { BACKEND_URL } from "./constants"
 import { LRUCache } from "lru-cache"
 
-// Allows the content script to access session storage as per
-// https://developer.chrome.com/docs/extensions/reference/api/storage#method-StorageArea-setAccessLevel
-chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
 
 const cache = new LRUCache({
   max: 100,  // max size

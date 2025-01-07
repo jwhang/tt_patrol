@@ -1,6 +1,4 @@
-1. Activate/Deactivate Button
-2. Gunicorn Config & Load Test (Locust)
-3. Prettier (clean up code)
-4. Document code.
-5. Update postgres security
-6. Make presentation
+1. Gunicorn Config & Load Test (Locust)
+2. Document code.
+3. Update postgres security
+4. Make presentation

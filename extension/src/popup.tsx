@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { getDay } from './patrol_state'
-import { useChromeStorageSession } from 'use-chrome-storage';
+import { useChromeStorageLocal } from 'use-chrome-storage';
 import { SCOOBY_SLEEPING, SCOOBY_SNIFFING } from './constants'
 
 
 const Popup = () => {
   const initial_state = getDay() === "Tuesday" ? false : true;
-  const [patrolEnabled, setPatrolEnabled] = useChromeStorageSession("patrolEnabled", initial_state);
+  const [patrol, setPatrol] = useChromeStorageLocal("patrolEnabled", initial_state);
 
   const dayOfWeekMessage = () => {
     if (getDay() === "Tuesday") {
@@ -18,7 +18,7 @@ const Popup = () => {
   }
 
   const patrolStatusMessage = () => {
-    if (patrolEnabled) {
+    if (patrol) {
       return "Scooby is on the patrol";
     } else {
       return "Scooby is sleeping";
@@ -26,7 +26,7 @@ const Popup = () => {
   }
 
   const scoobyImage = () => {
-    const scooby_gif = patrolEnabled ? SCOOBY_SNIFFING : SCOOBY_SLEEPING;
+    const scooby_gif = patrol ? SCOOBY_SNIFFING : SCOOBY_SLEEPING;
 
     return (
       <img
@@ -39,10 +39,10 @@ const Popup = () => {
   }
 
   const enableButton = () => {
-    const message = patrolEnabled ? "Stop Patrol" : "Scooby Wake Up";
+    const message = patrol ? "Stop Patrol" : "Scooby Wake Up";
     return (
       <button
-        onClick={() => setPatrolEnabled(!patrolEnabled)}
+        onClick={() => setPatrol(!patrol)}
         style={{ marginRight: "5px" }}
       >
         {message}

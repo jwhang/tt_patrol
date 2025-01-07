@@ -39,7 +39,7 @@ const Popup = () => {
   }
 
   const enableButton = () => {
-    const message = patrol ? "Stop Patrol" : "Scooby Wake Up";
+    const message = patrol ? "Scooby That's Enough" : "Scooby Wake Up";
     return (
       <button
         onClick={() => setPatrol(!patrol)}

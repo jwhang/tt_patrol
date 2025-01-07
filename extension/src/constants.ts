@@ -15,7 +15,7 @@ export const NAUGHTYLIST = [
   "TZ",
 ].map((word) => "\\b" + word + "\\b");
 export const MIN_NUM_WORDS = 4; // Text must be at least MIN_NUM_WORDS to be analyzed for naughtiness.
-export const CHAT_ID = 1621389464744799;
+export const CHAT_ID_PREFIX = 1621;
 export const MIN_HEIGHT = 100;
 export const MIN_WIDTH = 100;
 export const SCOOBY = "media/scooby-no.jpg";

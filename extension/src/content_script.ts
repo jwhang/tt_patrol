@@ -1,8 +1,9 @@
-import { CHAT_ID, SCOOBY, SCOOBY_VID, MIN_HEIGHT, MIN_WIDTH } from './constants'
+import { SCOOBY, SCOOBY_VID, MIN_HEIGHT, MIN_WIDTH } from './constants'
 import { isViolation, redactText } from './redact_text';
 import { getPatrolState } from './patrol_state'
 
 
+// Listens for change to Patrol state.
 chrome.storage.local.onChanged.addListener(
   (changes: { [key: string]: chrome.storage.StorageChange }) => {
     // Assumes that only 'patrolEnabled' boolean is stored in chrome storage.
@@ -26,11 +27,11 @@ async function setUpObserver(): Promise<void> {
     subtree: true,
   };
   const callback = (mutationList: MutationRecord[], observer: MutationObserver) => {
-    const locationIsLasChicas = window.location.pathname.startsWith(`/t/${CHAT_ID}`);
-    console.log("location is las chicas: " + locationIsLasChicas);
-    if (!locationIsLasChicas) {
-      return;
-    }
+    //const locationIsLasChicas = window.location.pathname.startsWith(`/t/${CHAT_ID}`);
+    //console.log("location is las chicas: " + locationIsLasChicas);
+    //if (!locationIsLasChicas) {
+    //  return;
+    //}
     mutationList.forEach((record) => {
       // Only patrol if correct chat.
       record.addedNodes.forEach((node) => {

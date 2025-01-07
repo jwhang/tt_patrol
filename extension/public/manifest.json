@@ -19,7 +19,7 @@
 	"content_scripts": 
 	[
 		{
-			"matches": ["*://*.messenger.com/*"],
+			"matches": ["*://*.messenger.com/t/1621*"],
 			"js": ["js/content_script.js"],
 			"run_at": "document_end"
 		}

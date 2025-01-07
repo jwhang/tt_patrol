@@ -45,7 +45,7 @@ class TTPatrolClient(HttpUser):
         for url in self.all_content:
             # name=None to prevent Locust stats collection on the deletes.
             with self.client.delete(
-                get_judgements_url(url), name=None, catch_response=True
+                get_judgements_url(url), name="", catch_response=True
             ) as resp:
                 if resp.status_code in [200, 404]:
                     resp.success()

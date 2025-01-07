@@ -1,11 +1,9 @@
 import { BACKEND_URL } from "./constants"
 import { LRUCache } from "lru-cache"
 
-
 const cache = new LRUCache({
   max: 100,  // max size
 });
-
 
 chrome.runtime.onMessage.addListener(
   function(message, sender, senderResponse) {

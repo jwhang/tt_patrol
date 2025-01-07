@@ -1,3 +1,5 @@
+import random
+from math import floor
 from urllib import parse
 
 from locust import HttpUser, between, task
@@ -8,7 +10,7 @@ def get_judgements_url(url):
     return f"/judgements/{encoded_url}"
 
 
-class LoadtestJudge(HttpUser):
+class TTPatrolClient(HttpUser):
     wait_time = between(0.5, 2)
     images_1 = [
         "https://theworldtravelguy.com/wp-content/uploads/2024/09/DSCF2468.jpg",
@@ -35,16 +37,34 @@ class LoadtestJudge(HttpUser):
         "https://videos.pexels.com/video-files/29956114/12855671_1440_2560_48fps.mp4"
     ]
 
-    def on_stop(self):
+    all_content = images_1 + images_2 + images_3 + videos_1 + videos_2
+    deleted_set = set()
+
+    def on_start(self):
         # Make sure we start off on a clean slate and nothing is cached.
-        for url in (
-            self.images_1
-            + self.images_2
-            + self.images_3
-            + self.videos_1
-            + self.videos_2
-        ):
-            self.client.delete(get_judgements_url(url))
+        for url in self.all_content:
+            # name=None to prevent Locust stats collection on the deletes.
+            with self.client.delete(
+                get_judgements_url(url), name=None, catch_response=True
+            ) as resp:
+                if resp.status_code in [200, 404]:
+                    resp.success()
+                else:
+                    resp.failure(f"Unexpected status code: {resp.status_code}")
+
+    @task
+    def delete_quarter_randomly(self):
+        # Make sure we start off on a clean slate and nothing is cached.
+        # name=None to prevent Locust stats collection on the deletes.
+        for _ in range(floor(len(self.all_content) / 4)):
+            with self.client.delete(
+                get_judgements_url(random.choice(self.all_content)),
+                catch_response=True,
+            ) as resp:
+                if resp.status_code in [200, 404]:
+                    resp.success()
+                else:
+                    resp.failure(f"Unexpected status code: {resp.status_code}")
 
     @task
     def put_images_1(self):

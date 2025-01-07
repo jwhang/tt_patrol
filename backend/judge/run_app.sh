@@ -6,5 +6,5 @@ if [[ "$FLASK_ENV" == "development" ]]; then
 fi
 
 if [[ "$FLASK_ENV" == "production" ]]; then
-        gunicorn --workers=3 --threads=8 --bind=0.0.0.0:4000 app:app
+        gunicorn --worker-class=gevent --workers=4 --threads=8 --bind=0.0.0.0:4000 app:app
 fi

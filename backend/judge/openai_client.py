@@ -17,7 +17,10 @@ def analyze_image(image_url):
                 "content": [
                     {
                         "type": "text",
-                        "text": "You analyze images and answer true or false: is the image related to travel? This includes, but is not limited to being in an airplane or at an airport, eating food or drinking somewhere abroad, or photos of general sightseeing views.",
+                        "text": """You analyze images and answer true or false: is the 
+                        image related to travel? This includes, but is not limited to 
+                        being in an airplane or at an airport, eating food or drinking 
+                        somewhere abroad, or photos of general sightseeing views.""",
                     },
                 ],
             },

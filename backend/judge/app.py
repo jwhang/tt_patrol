@@ -1,9 +1,12 @@
 import logging
 from os import environ
 
-import media_analyzer
 from flask import Flask, jsonify, make_response, request
 from flask_sqlalchemy import SQLAlchemy
+from psycopg2.errors import UniqueViolation
+from sqlalchemy.exc import IntegrityError
+
+import media_analyzer
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DB_URL")
@@ -62,8 +65,16 @@ def create_judgement(url=None):
         new_judgement = Judgement(
             url=url, is_violation=content_analysis.is_travel_content
         )
-        db.session.add(new_judgement)
-        db.session.commit()
+        try:
+            db.session.add(new_judgement)
+            db.session.commit()
+        except IntegrityError as e:
+            if isinstance(e.orig, UniqueViolation):
+                db.session.rollback()
+                return get_judgement(url)
+            else:
+                raise
+
         return make_response(new_judgement.json(), 201)
     except Exception as e:
         return make_response(

@@ -68,5 +68,5 @@ class LoadtestJudge(HttpUser):
 
     @task
     def put_vidoes_2(self):
-        for url in self.videos_1:
+        for url in self.videos_2:
             self.client.put(get_judgements_url(url))

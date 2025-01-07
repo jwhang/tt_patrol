@@ -3,7 +3,7 @@ import { isViolation, redactText } from './redact_text';
 import { getPatrolState } from './patrol_state'
 
 
-chrome.storage.session.onChanged.addListener(
+chrome.storage.local.onChanged.addListener(
   (changes: { [key: string]: chrome.storage.StorageChange }) => {
     // Assumes that only 'patrolEnabled' boolean is stored in chrome storage.
     // If more data is added to chrome storage, then the changes must be 

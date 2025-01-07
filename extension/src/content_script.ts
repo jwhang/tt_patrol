@@ -13,14 +13,8 @@ chrome.storage.session.onChanged.addListener(
 
 
 async function setUpObserver(): Promise<void> {
-  const locationIsLasChicas = window.location.pathname.startsWith(`/t/${CHAT_ID}`);
-  if (locationIsLasChicas) {
-    return
-  }
-
   let patrolEnabled = await getPatrolState();
   console.log("TTPatrol enabled: " + patrolEnabled);
-
   if (!patrolEnabled) {
     return;
   }
@@ -32,6 +26,11 @@ async function setUpObserver(): Promise<void> {
     subtree: true,
   };
   const callback = (mutationList: MutationRecord[], observer: MutationObserver) => {
+    const locationIsLasChicas = window.location.pathname.startsWith(`/t/${CHAT_ID}`);
+    console.log("location is las chicas: " + locationIsLasChicas);
+    if (!locationIsLasChicas) {
+      return;
+    }
     mutationList.forEach((record) => {
       // Only patrol if correct chat.
       record.addedNodes.forEach((node) => {

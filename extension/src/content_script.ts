@@ -124,7 +124,7 @@ async function evaluateAndRedact(element: HTMLImageElement | HTMLVideoElement):
     (response) => {
       if (response.is_violation) {
         if (element instanceof HTMLImageElement) {
-          element.src = chrome.runtime.getURL(SCOOBY);
+          element.src = chrome.runtime.getURL(SCOOBY_VID);
         } else if (element instanceof HTMLVideoElement) {
           // Replaces the VideoHTMLElement with an ImageHTMLElement.
           const placeholder = document.createElement("img");

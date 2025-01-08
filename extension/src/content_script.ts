@@ -1,4 +1,4 @@
-import { SCOOBY, SCOOBY_VID, MIN_HEIGHT, MIN_WIDTH } from './constants'
+import { SCOOBY, SCOOBY_VID, MIN_HEIGHT, MIN_WIDTH, EVALUTE_MEDIA_CONTENT_MESSAGE, EVALUTE_TEXT_MESSAGE } from './constants'
 import { isViolation, redactText } from './redact_text';
 import { getPatrolState } from './patrol_state'
 
@@ -27,11 +27,6 @@ async function setUpObserver(): Promise<void> {
     subtree: true,
   };
   const callback = (mutationList: MutationRecord[], observer: MutationObserver) => {
-    //const locationIsLasChicas = window.location.pathname.startsWith(`/t/${CHAT_ID}`);
-    //console.log("location is las chicas: " + locationIsLasChicas);
-    //if (!locationIsLasChicas) {
-    //  return;
-    //}
     mutationList.forEach((record) => {
       // Only patrol if correct chat.
       record.addedNodes.forEach((node) => {
@@ -62,10 +57,27 @@ function patrolText(node: Node): void {
     if (isVisited(walker.currentNode.parentElement)) {
       continue;
     }
-    if (isViolation(walker.currentNode)) {
-      redactText(walker.currentNode);
+    if (
+      node.parentElement !== null &&
+      node.parentElement.tagName.toLowerCase() === "script") {
+      continue;
     }
-    markVisited(walker.currentNode.parentElement);
+
+    // I have to assign the currentNode because walker.currentNode will refer
+    // to another node in the callback.
+    let curNode = walker.currentNode;
+    chrome.runtime.sendMessage(
+      {
+        message: EVALUTE_TEXT_MESSAGE,
+        text: curNode.nodeValue
+      },
+      (is_violation: boolean) => {
+        if (is_violation) {
+          redactText(curNode);
+        }
+      },
+    );
+    markVisited(curNode.parentElement);
   }
 }
 
@@ -106,6 +118,7 @@ async function evaluateAndRedact(element: HTMLImageElement | HTMLVideoElement):
   Promise<void> {
   chrome.runtime.sendMessage(
     {
+      message: EVALUTE_MEDIA_CONTENT_MESSAGE,
       url: element.src,
     },
     (response) => {

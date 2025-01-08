@@ -1,29 +1,16 @@
 import { MIN_NUM_WORDS, NAUGHTYLIST } from './constants'
 
 // Returns true if given string should be redacted.
-export function isViolation(node: Node): boolean {
-  function isValidElement(node: Node) {
-    return (
-      node.parentElement !== null &&
-      node.parentElement.tagName.toLowerCase() != "script"
-    );
-  }
-  function isLongEnough(content: string | null) {
-    if (content == null) return false
-
+export function isViolation(content: string): boolean {
+  function isLongEnough(content: string) {
     return content.trim().split(" ").length > MIN_NUM_WORDS;
   }
-  function isNaughty(content: string | null) {
-    if (content == null) return false
-
+  function isNaughty(content: string) {
     const normalized = content.trim().toLowerCase();
     return NAUGHTYLIST.some((naughty_word) => normalized.match(naughty_word));
   }
-  return (
-    isValidElement(node) &&
-    isLongEnough(node.nodeValue) &&
-    isNaughty(node.nodeValue)
-  );
+
+  return isLongEnough(content) && isNaughty(content);
 }
 
 // Redact violating node.

@@ -23,4 +23,6 @@ export const SCOOBY_VID = "media/scooby-ruh-roh.gif";
 export const SCOOBY_SNIFFING = "media/scooby-sniffing.gif"
 export const SCOOBY_SLEEPING = "media/scooby-sleeping.webp"
 export const BACKEND_URL = "http://172.232.7.65:4000";
+export const EVALUTE_MEDIA_CONTENT_MESSAGE = "evaluateContentRequest"
+export const EVALUTE_TEXT_MESSAGE = "evaluateTextRequest"
 
